@@ -1,13 +1,12 @@
 package org.example;
 
 public class Player {
-    public String name;
+    public final String name;
     public int winCount = 0;
     public int bestScore = 0;
     public char symbol;
 
-    public Player(char symbol, String name) {
-        this.symbol = symbol;
+    public Player(String name) {
         this.name = name;
     }
 }
