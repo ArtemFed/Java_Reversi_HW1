@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5b4f9361-cf3d-49bf-bf3a-8f72e6f883ef" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Player.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Reversi.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Reversi.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -42,7 +41,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/artem/Documents/GitHub/Java_Reversi_HW1",
+    "last_opened_file_path": "D:/Projects/java/Java_Reversi_HW/Java_Reversi_HW1",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -68,6 +67,7 @@
       <workItem from="1669152233726" duration="5789000" />
       <workItem from="1669194581857" duration="24619000" />
       <workItem from="1669277604402" duration="2110000" />
+      <workItem from="1669284377247" duration="1762000" />
     </task>
     <servers />
   </component>

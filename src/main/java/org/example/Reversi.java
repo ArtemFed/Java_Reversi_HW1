@@ -66,14 +66,14 @@ public class Reversi extends BoardGame implements ColorTheme {
                 answerColor = 1;
                 player.symbol = SYMBOL_2;
                 opponent.symbol = SYMBOL_1;
-                System.out.print("\nИгрок1 будет играть: " + getColorChar(player.symbol) +
-                        "\nИгрок2 будет играть: " + getColorChar(opponent.symbol));
+                System.out.print("\n" + player.name + " будет играть: " + getColorChar(player.symbol) +
+                        "\n" + opponent.name + " будет играть: " + getColorChar(opponent.symbol));
             } else {
                 answerColor = 0;
                 player.symbol = SYMBOL_1;
                 opponent.symbol = SYMBOL_2;
-                System.out.printf("\nИгрок1 будет играть: " + getColorChar(player.symbol) +
-                        "\nИгрок2 будет играть: " + getColorChar(opponent.symbol));
+                System.out.printf("\n" + player.name + " будет играть: " + getColorChar(player.symbol) +
+                        "\n" + opponent.name + " будет играть: " + getColorChar(opponent.symbol));
             }
 
             System.out.print("""
@@ -103,7 +103,8 @@ public class Reversi extends BoardGame implements ColorTheme {
                     System.out.printf(ANSI_PURPLE + "\n\nREVERSI. Игра номер: %d\n" + ANSI_RESET, ++gamesCount);
 
                     if (player.winCount + opponent.winCount > 0) {
-                        System.out.printf(ANSI_PURPLE + "\n\nСЧЁТ: Игрок1 %d | %d Игрок2\n" + ANSI_RESET, player.winCount, opponent.winCount);
+                        System.out.printf(ANSI_PURPLE + "\n\nСЧЁТ: " + player.name + " %d | %d " + opponent.name + "\n"
+                                + ANSI_RESET, player.winCount, opponent.winCount);
                     }
 
                     // В четных играх начинает symbol1 = @, в нечетных играх начинает symbol2 = $
@@ -128,20 +129,18 @@ public class Reversi extends BoardGame implements ColorTheme {
                         int valid_moves_count = validMoves(board, moves, player.symbol);
                         // Выводим валидные шаги
                         displayWithTips();
-
                         if (valid_moves_count != 0) {
                             // Обнуляем счётчик не валидных ходов подряд
                             invalidMovesCount = 0;
                             playerMove(player.symbol, in);
                         } else if (++invalidMovesCount < 2) {
-                            System.out.print("\nИгрок1 не может сходить, поэтому пропускает");
+                            System.out.print("\n" + player.name + " не может сходить, поэтому пропускает");
                         } else {
                             System.out.print("\n!  Никто из Игроков не может сходить, так что игра окончена.\n");
                         }
                     } else {
                         // Ход оппонента
                         int valid_moves_count = validMoves(board, moves, opponent.symbol);
-
                         if (answerGameMode == 2) {
                             displayWithTips();
                         } else {
@@ -161,7 +160,7 @@ public class Reversi extends BoardGame implements ColorTheme {
                             }
                         } else {
                             if (++invalidMovesCount < 2) {
-                                System.out.print("\nИгрок2 не может сходить, поэтому пропускает\n");
+                                System.out.print("\n" + opponent.name + " не может сходить, поэтому пропускает\n");
                             } else {
                                 System.out.print("\n!  Никто из Игроков не может сходить, так что игра окончена.\n");
                             }
@@ -182,15 +181,15 @@ public class Reversi extends BoardGame implements ColorTheme {
                         user_score += board[row][col] == player.symbol ? 1 : 0;
                     }
                 System.out.printf("Окончательный счет таков:" +
-                        ANSI_YELLOW + "\nИгрок1" + ANSI_RESET + ":  %d" +
-                        ANSI_GREEN + "\nИгрок2" + ANSI_RESET + ":  %d\n", user_score, comp_score);
+                        ANSI_YELLOW + "\n" + player.name + ANSI_RESET + ":  %d" +
+                        ANSI_GREEN + "\n" + opponent.name + ANSI_RESET + ":  %d\n", user_score, comp_score);
 
                 if (user_score > comp_score) {
                     ++player.winCount;
-                    System.out.print("Победил" + ANSI_YELLOW + "\nИгрок1 " + ANSI_RESET + "!!! Мои поздравления!");
+                    System.out.print("Победил" + ANSI_YELLOW + "\n" + player.name + ANSI_RESET + "!!! Мои поздравления!");
                 } else if (user_score < comp_score) {
                     ++opponent.winCount;
-                    System.out.print("Победил" + ANSI_GREEN + "\nИгрок2 " + ANSI_RESET + "!!! Мои поздравления!");
+                    System.out.print("Победил" + ANSI_GREEN + "\n" + opponent.name + ANSI_RESET + "!!! Мои поздравления!");
                 } else {
                     ++player.winCount;
                     ++opponent.winCount;
@@ -205,8 +204,8 @@ public class Reversi extends BoardGame implements ColorTheme {
                     opponent.bestScore = comp_score;
                 }
                 System.out.printf("\n\nЛучший счёт каждого игрока в серии игр:" +
-                        "\n\t" + ANSI_YELLOW + "Игрок1" + ANSI_RESET + ":  %d" +
-                        "\n\t" + ANSI_GREEN + "Игрок2" + ANSI_RESET + ":  %d", player.bestScore, opponent.bestScore);
+                        "\n\t" + ANSI_YELLOW + player.name + ANSI_RESET + ":  %d" +
+                        "\n\t" + ANSI_GREEN + player.name + ANSI_RESET + ":  %d", player.bestScore, opponent.bestScore);
 
                 System.out.print("\n\nХочешь поиграть снова с тем же соперником (очерёдность хода поменяется)? (y/n): ");
                 answer = in.next();
