@@ -4,11 +4,11 @@ public abstract class BoardGame implements Game{
     /**
      * Размер Игрового поля
      */
-    protected static final int SIZE = 4;
+    protected static final Integer SIZE = 4;
 
-    int gamesCount = 0;
+    protected Integer gamesCount = 0;
 
-    int movesCount = 0;
+    protected Integer movesCount = 0;
 
     /**
      * Игровое поле с фишками

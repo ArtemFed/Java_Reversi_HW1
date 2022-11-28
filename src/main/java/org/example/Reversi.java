@@ -124,7 +124,8 @@ public class Reversi extends BoardGame implements ColorTheme {
                     System.out.printf(ANSI_PURPLE + "\n\nREVERSI. Игра номер: %d\n" + ANSI_RESET, ++gamesCount);
 
                     if (player.winCount + opponent.winCount > 0) {
-                        System.out.printf(ANSI_PURPLE + "\n\nСЧЁТ: " + player.name + " %d | %d " + opponent.name + "\n"
+                        System.out.printf(ANSI_PURPLE + "\n\nСЧЁТ: " + getColorString(player.name, player.symbol) +
+                                " %d | %d " + getColorString(opponent.name, opponent.symbol) + "\n"
                                 + ANSI_RESET, player.winCount, opponent.winCount);
                     }
 
@@ -144,7 +145,11 @@ public class Reversi extends BoardGame implements ColorTheme {
                     board[SIZE / 2 - 1][SIZE / 2] = board[SIZE / 2][SIZE / 2 - 1] = opponent.symbol;
                 }
                 do {
-                    System.out.printf(ANSI_PURPLE + "\nИгровое поле. Ход: %d\n" + ANSI_RESET, movesCount - 3);
+                    System.out.printf(ANSI_PURPLE + "\nИгровое поле. Ход: %d.\n" + "Текущий счёт: " +
+                                    getColorString(player.name, player.symbol) + " %d | %d " +
+                                    getColorString(opponent.name, opponent.symbol) + "\n"
+                                    + ANSI_RESET, movesCount - 3,
+                            getScore(board, player.symbol), getScore(board, opponent.symbol));
                     if (currentPlayer++ % 2 == 0) {
                         // Ход игрока
                         int valid_moves_count = validMoves(board, moves, player.symbol);
@@ -221,7 +226,7 @@ public class Reversi extends BoardGame implements ColorTheme {
                     ++opponent.winCount;
                     System.out.print("Ничья!");
                 }
-                System.out.printf("\n\nСчёт между игроками: %d : %d", player.winCount, opponent.winCount);
+                System.out.printf("\n\nПобеды игроков: %d : %d", player.winCount, opponent.winCount);
 
                 if (user_score > player.bestScore) {
                     player.bestScore = user_score;
@@ -347,7 +352,7 @@ public class Reversi extends BoardGame implements ColorTheme {
                     validMoves(tempBoard, tempMoves, opponent);
 
                     TupleThree tuple = bestMove(tempBoard, tempMoves, opponent);
-                    new_score -= (double) tuple.getFirst();
+                    new_score -= (double) tuple.first();
 
                     if (new_score > score) {
                         score = new_score;
@@ -358,14 +363,14 @@ public class Reversi extends BoardGame implements ColorTheme {
             }
         } else {
             TupleThree tuple = bestMove(board, moves, player.symbol);
-            bestRow = (int) tuple.getSecond();
-            bestCol = (int) tuple.getThird();
+            bestRow = (int) tuple.second();
+            bestCol = (int) tuple.third();
         }
 
         // Делаем Лучший Шаг
         makeMove(board, bestRow, bestCol, player.symbol);
-        System.out.println("Ход " + getColorString(player.name, player.symbol)  + "-" + getColorChar(player.symbol) +
-                ": (" + bestRow + " " + bestCol + ")");
+        System.out.println("Ход " + getColorString(player.name, player.symbol) + "-" + getColorChar(player.symbol) +
+                ": (" + (bestRow + 1) + " " + (bestCol + 1) + ")");
     }
 
 
@@ -373,7 +378,7 @@ public class Reversi extends BoardGame implements ColorTheme {
      * Получить символ оппонетна
      *
      * @param player Символ игрока
-     * @return Символ оппонетнта
+     * @return Символ оппонента
      */
     private static char getOpponentSymbol(char player) {
         return (player == SYMBOL_1) ? SYMBOL_2 : SYMBOL_1;
@@ -581,15 +586,11 @@ public class Reversi extends BoardGame implements ColorTheme {
      */
     @Override
     public int getScore(char[][] board, char player) {
-        // Символ оппонента
-        char opponent = getOpponentSymbol(player);
-
         // Суммарный счёт Игрока
         int score = 0;
 
         for (int row = 0; row < SIZE; row++)
             for (int col = 0; col < SIZE; col++) {
-                score -= board[row][col] == opponent ? 1 : 0;
                 score += board[row][col] == player ? 1 : 0;
             }
         return score;
@@ -600,24 +601,22 @@ public class Reversi extends BoardGame implements ColorTheme {
      */
     @Override
     public final void display(char[][] board) {
-        {
-            StringBuilder stringBuilder = new StringBuilder("\n ");
-            // Вывод шапки таблицы
+        StringBuilder stringBuilder = new StringBuilder("\n ");
+        // Вывод шапки таблицы
+        for (int col = 0; col < SIZE; col++) {
+            stringBuilder.append(String.format("   %d", col + 1));
+        }
+        stringBuilder.append("\n");
+        // Вывод всего поля (таблицы)
+        for (int row = 0; row < SIZE; row++) {
+            stringBuilder.append("  +").append("---+".repeat(SIZE)).append(String.format("\n%2d|", row + 1));
             for (int col = 0; col < SIZE; col++) {
-                stringBuilder.append(String.format("   %d", col + 1));
+                stringBuilder.append(String.format(getColorChar(board[row][col]) + "|"));
             }
             stringBuilder.append("\n");
-            // Вывод всего поля (таблицы)
-            for (int row = 0; row < SIZE; row++) {
-                stringBuilder.append("  +").append("---+".repeat(SIZE)).append(String.format("\n%2d|", row + 1));
-                for (int col = 0; col < SIZE; col++) {
-                    stringBuilder.append(String.format(getColorChar(board[row][col]) + "|"));
-                }
-                stringBuilder.append("\n");
-            }
-            // Вывод низа таблицы
-            stringBuilder.append("  +").append("---+".repeat(SIZE)).append("\n");
-            System.out.print(stringBuilder);
         }
+        // Вывод низа таблицы
+        stringBuilder.append("  +").append("---+".repeat(SIZE)).append("\n");
+        System.out.print(stringBuilder);
     }
 }
