@@ -8,7 +8,6 @@ public class Cell {
     public char key;
 
     public Cell() {
-
     }
 
 }

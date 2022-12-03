@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Reversi extends BoardGame implements ColorTheme {
+public final class Reversi extends BoardGame {
 
     /**
      * Список имён для случайной генерации имени компьютера (или второго игрока)
@@ -24,33 +24,37 @@ public class Reversi extends BoardGame implements ColorTheme {
      */
     private String getColorChar(char ch) {
         if (ch == Cell.SYMBOL_1) {
-            return ANSI_YELLOW + " " + ch + " " + ANSI_RESET;
+            return Env.ANSI_YELLOW + " " + ch + " " + Env.ANSI_RESET;
         } else if (ch == Cell.SYMBOL_2) {
-            return ANSI_GREEN + " " + ch + " " + ANSI_RESET;
+            return Env.ANSI_GREEN + " " + ch + " " + Env.ANSI_RESET;
         } else if (ch == Cell.SYMBOL_3) {
-            return ANSI_CYAN + " " + ch + " " + ANSI_RESET;
+            return Env.ANSI_CYAN + " " + ch + " " + Env.ANSI_RESET;
         }
         return " " + ch + " ";
     }
 
     /**
-     *
-     * @param line
-     * @param ch
-     * @return
+     * Расскрасить строку в зависимости от значения полученного символа
+     * @param line Строка
+     * @param ch   Символ
+     * @return Расскрашенная строка
      */
     private String getColorString(String line, char ch) {
         if (ch == Cell.SYMBOL_1) {
-            return ANSI_YELLOW + line + ANSI_RESET;
+            return Env.ANSI_YELLOW + line + Env.ANSI_RESET;
         } else if (ch == Cell.SYMBOL_2) {
-            return ANSI_GREEN + line + ANSI_RESET;
+            return Env.ANSI_GREEN + line + Env.ANSI_RESET;
         } else if (ch == Cell.SYMBOL_3) {
-            return ANSI_CYAN + line + ANSI_RESET;
+            return Env.ANSI_CYAN + line + Env.ANSI_RESET;
         }
         return " " + ch + " ";
     }
 
-    void play() throws InterruptedException {
+    /**
+     * Запускает игру
+     * @throws InterruptedException задежрка, когда бот думает над ходом
+     */
+    public void play() throws InterruptedException {
         // Выбор цвета игрока
         int answerColor;
         String answerColorStr;
@@ -79,7 +83,7 @@ public class Reversi extends BoardGame implements ColorTheme {
             // Очистка консоли
             System.out.print("\033[H\033[J");
 
-            System.out.println(ANSI_PURPLE + "\n\tREVERSI" + ANSI_RESET);
+            System.out.println(Env.ANSI_PURPLE + "\n\tREVERSI" + Env.ANSI_RESET);
 
             // Игроки
             player = new Player();
@@ -140,12 +144,12 @@ public class Reversi extends BoardGame implements ColorTheme {
             do {
                 // Подготовка к игре
                 {
-                    System.out.printf(ANSI_PURPLE + "\n\nREVERSI. Игра номер: %d\n" + ANSI_RESET, ++gamesCount);
+                    System.out.printf(Env.ANSI_PURPLE + "\n\nREVERSI. Игра номер: %d\n" + Env.ANSI_RESET, ++gamesCount);
 
                     if (player.winCount + opponent.winCount > 0) {
-                        System.out.printf(ANSI_PURPLE + "\n\nСЧЁТ: " + getColorString(player.name, player.symbol) +
+                        System.out.printf(Env.ANSI_PURPLE + "\n\nСЧЁТ: " + getColorString(player.name, player.symbol) +
                                 " %d | %d " + getColorString(opponent.name, opponent.symbol) + "\n"
-                                + ANSI_RESET, player.winCount, opponent.winCount);
+                                + Env.ANSI_RESET, player.winCount, opponent.winCount);
                     }
 
                     // В четных играх начинает symbol1 = @, в нечетных играх начинает symbol2 = $
@@ -164,10 +168,10 @@ public class Reversi extends BoardGame implements ColorTheme {
                     board[SIZE / 2 - 1][SIZE / 2].key = board[SIZE / 2][SIZE / 2 - 1].key = opponent.symbol;
                 }
                 do {
-                    System.out.printf(ANSI_PURPLE + "\nИгровое поле. Ход: %d.\n" + "Текущий счёт: " +
+                    System.out.printf(Env.ANSI_PURPLE + "\nИгровое поле. Ход: %d.\n" + "Текущий счёт: " +
                                     getColorString(player.name, player.symbol) + " %d | %d " +
                                     getColorString(opponent.name, opponent.symbol) + "\n"
-                                    + ANSI_RESET, movesCount - 3,
+                                    + Env.ANSI_RESET, movesCount - 3,
                             getScore(board, player.symbol), getScore(board, opponent.symbol));
                     if (currentPlayer++ % 2 == 0) {
                         // Ход игрока
@@ -182,7 +186,6 @@ public class Reversi extends BoardGame implements ColorTheme {
                             System.out.print("\n" +
                                     getColorString(player.name, player.symbol) + " " + getColorChar(player.symbol) +
                                     " не может сходить, поэтому пропускает.");
-                            Thread.sleep(1000);
                         } else {
                             System.out.print("\n!  Никто из Игроков не может сходить, так что игра окончена.\n");
                         }
@@ -219,7 +222,7 @@ public class Reversi extends BoardGame implements ColorTheme {
                 } while (movesCount < SIZE * SIZE && invalidMovesCount < 2);
 
                 /* Game over */
-                System.out.print(ANSI_PURPLE + "\nФинальная доска:\n" + ANSI_RESET);
+                System.out.print(Env.ANSI_PURPLE + "\nФинальная доска:\n" + Env.ANSI_RESET);
                 display(board);
 
                 int comp_score = 0;
@@ -276,8 +279,8 @@ public class Reversi extends BoardGame implements ColorTheme {
     /**
      * Отобразить подсказки для живого игрока
      */
-    void displayWithTips() {
-        StringBuilder stringBuilder = new StringBuilder("Возможные ходы: ");
+    private void displayWithTips() {
+        StringBuilder stringBuilder = new StringBuilder("Возможные ходы (отмечены знаком:" + getColorChar('?') + "): ");
         for (int row = 0; row < SIZE; ++row) {
             for (int col = 0; col < SIZE; ++col) {
                 if (moves[row][col] == 1) {
@@ -299,8 +302,10 @@ public class Reversi extends BoardGame implements ColorTheme {
 
     /**
      * Обработать ход пользователя
+     * @param player Символ игрока
+     * @param in Для чтения
      */
-    void playerMove(Player player, Scanner in) {
+    private void playerMove(Player player, Scanner in) {
         int x = 0, y = 0;
         boolean flag = true;
         // Считывание ходов игрока до тех пор, пока не будет введен один из действительных ходов
@@ -310,13 +315,13 @@ public class Reversi extends BoardGame implements ColorTheme {
             String xStr = in.next();
             String yStr = in.next();
             if (isNotNumeric(xStr) || isNotNumeric(yStr)) {
-                System.out.print("!  Некорректные данные, попробуйте ещё раз. (Пример: 2 3)\n");
+                System.out.print(Env.ANSI_RED + "!  Некорректные данные, попробуйте ещё раз. (Пример: 2 3)\n" + Env.ANSI_RED);
                 continue;
             }
             x = Integer.parseInt(xStr) - 1;
             y = Integer.parseInt(yStr) - 1;
             if (x < 0 || y < 0 || x >= SIZE || y >= SIZE || moves[x][y] != 1) {
-                System.out.print("!  Не валидный ход, попробуйте ещё раз. (Пример: 2 3)\n");
+                System.out.print(Env.ANSI_RED + "!  Не валидный ход, попробуйте ещё раз. (Пример: 2 3)\n" + Env.ANSI_RED);
             } else {
                 flag = false;
             }
@@ -325,9 +330,11 @@ public class Reversi extends BoardGame implements ColorTheme {
         movesCount++;
     }
 
+
     /**
-     * @param str
-     * @return
+     * Проверка на НЕ число
+     * @param str Строка
+     * @return Это НЕ число?
      */
     public static boolean isNotNumeric(String str) {
         try {
@@ -338,13 +345,13 @@ public class Reversi extends BoardGame implements ColorTheme {
         }
     }
 
+
     /**
      * Найти и выполнить лучший ход для компьютера, опираясь на возможные ходы соперника
-     *
      * @param isSmart Умный ход, опираясь на действия игрока или обычный, лучший в данный момент
      * @param player  Символ компьютера
      */
-    void computerMove(Player player, boolean isSmart) {
+    private void computerMove(Player player, boolean isSmart) throws InterruptedException {
         // Индексы лучшего хода
         int bestRow = -1;
         int bestCol = -1;
@@ -394,12 +401,14 @@ public class Reversi extends BoardGame implements ColorTheme {
         makeMove(board, bestRow, bestCol, player.symbol);
         System.out.println("Ход " + getColorString(player.name, player.symbol) + "-" + getColorChar(player.symbol) +
                 ": (" + (bestRow + 1) + " " + (bestCol + 1) + ")");
+
+        // Ожидание, чтобы лучше смотрелось
+        Thread.sleep(1000);
     }
 
 
     /**
      * Получить символ оппонетна
-     *
      * @param player Символ игрока
      * @return Символ оппонента
      */
@@ -410,11 +419,10 @@ public class Reversi extends BoardGame implements ColorTheme {
 
     /**
      * Считает количество валидных/возможных ходов + составляет "карту" этих шагов из 0 и 1
-     *
      * @param player Символ игрока на доске
      * @return Количество возможных ходов
      */
-    int validMoves(Cell[][] board, int[][] moves, char player) {
+    private int validMoves(Cell[][] board, int[][] moves, char player) {
         // Переменные-итераторы по строкам и столбцам
         int row, col;
 
@@ -487,13 +495,12 @@ public class Reversi extends BoardGame implements ColorTheme {
 
     /**
      * Посчитать лучший счёт для данного поля и вариантов хода
-     *
      * @param board  Игровое поле
      * @param moves  Поле валидных шагов
      * @param player Символ игрока
      * @return Tuple Лучший счёт (счёт, строка, столбец)
      */
-    TupleThree bestMove(Cell[][] board, int[][] moves, char player) {
+    private TupleThree bestMove(Cell[][] board, int[][] moves, char player) {
         // Для копирования Игрового поля
         Cell[][] newBoard = new Cell[SIZE][SIZE];
 
@@ -529,12 +536,11 @@ public class Reversi extends BoardGame implements ColorTheme {
 
     /**
      * Получить очки в зависимости от расположения клетки
-     *
      * @param row Строка
      * @param col Колонка
      * @return Очков с клетки
      */
-    int getScorePoint(int row, int col) {
+    private int getScorePoint(int row, int col) {
         if (row == 0 || row == (SIZE - 1) || col == 0 || col == (SIZE - 1)) {
             return 2;
         }
@@ -543,14 +549,13 @@ public class Reversi extends BoardGame implements ColorTheme {
 
     /**
      * Сделать шаг
-     *
      * @param board  Игровое поле
      * @param row    Индекс строки
      * @param col    Индекс столбца
      * @param player Символ игрока
      * @return Счёт с этого шага
      */
-    double makeMove(Cell[][] board, int row, int col, char player) {
+    private double makeMove(Cell[][] board, int row, int col, char player) {
         // Счёт с хода
         double score = 0;
 
@@ -609,7 +614,6 @@ public class Reversi extends BoardGame implements ColorTheme {
 
     /**
      * Поситать счёт (количество) для заданного символа на Игровом поле
-     *
      * @param board  Игровое поле
      * @param player Символ игрока на поле
      * @return Счёт игрока
@@ -628,6 +632,7 @@ public class Reversi extends BoardGame implements ColorTheme {
 
     /**
      * Отобразить текущее игровое поле
+     * @param board Поле для вывода
      */
     @Override
     public final void display(Cell[][] board) {

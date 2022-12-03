@@ -1,6 +1,6 @@
 package org.example;
 
-public enum Environment {
+public enum Env {
     ANSI_RESET("\u001B[0m"),
     ANSI_BLACK("\u001B[30m"),
     ANSI_RED("\u001B[31m"),
@@ -12,7 +12,7 @@ public enum Environment {
 
     private String color;
 
-    Environment(String envUrl) {
+    Env(String envUrl) {
         this.color = envUrl;
     }
 
