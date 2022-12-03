@@ -7,3 +7,4 @@ public record TupleThree(Object first, Object second, Object third) {
         return "Tuple(first=" + first + ", second=" + second + ", third=" + third + ")";
     }
 }
+

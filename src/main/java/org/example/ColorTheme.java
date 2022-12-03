@@ -10,8 +10,4 @@ interface ColorTheme {
     String ANSI_BLUE = "\u001B[34m";
     String ANSI_PURPLE = "\u001B[35m";
     String ANSI_CYAN = "\u001B[36m";
-
-    char SYMBOL_1 = '@';
-    char SYMBOL_2 = '$';
-    char SYMBOL_3 = '?';
 }

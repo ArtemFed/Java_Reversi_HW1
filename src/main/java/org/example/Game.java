@@ -2,7 +2,7 @@ package org.example;
 
 public interface Game {
 
-    void display(char[][] board);
+    void display(Cell[][] board);
 
-    int getScore(char[][] board, char player);
+    int getScore(Cell[][] board, char player);
 }
