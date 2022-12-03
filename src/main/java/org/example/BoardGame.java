@@ -22,6 +22,12 @@ public abstract class BoardGame implements Game{
     protected final int[][] moves = new int[SIZE][SIZE];
 
     /**
+     * Запускает игру
+     * @throws InterruptedException задежрка, когда бот думает над ходом
+     */
+    public abstract void play() throws InterruptedException;
+
+    /**
      * Поситать счёт для заданного символа на Игровом поле
      *
      * @param board  Игровое поле

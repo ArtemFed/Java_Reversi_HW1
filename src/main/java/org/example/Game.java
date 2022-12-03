@@ -1,6 +1,7 @@
 package org.example;
 
 public interface Game {
+    void play() throws InterruptedException;
 
     void display(Cell[][] board);
 
