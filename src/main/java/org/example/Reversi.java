@@ -20,6 +20,9 @@ public final class Reversi extends BoardGame implements EnvTheme {
 
     private int bestHardScore;
 
+    // Выбор мода игры (Easy = 1; Hard = 2; Duo = 3)
+    private int answerGameMode;
+
     /**
      * Расскрасить символ в зависимости от значения
      *
@@ -61,17 +64,6 @@ public final class Reversi extends BoardGame implements EnvTheme {
      * Запускает игру
      */
     public void play() {
-        // Выбор цвета игрока
-        int answerColor;
-        String answerColorStr;
-
-        // Выбор мода игры (Easy = 1; Hard = 2; Duo = 3)
-        int answerGameMode;
-        String answerGameModeStr;
-
-        // Номер текущего игрока % 2 (кто должен ходить)
-        int currentPlayer;
-
         // Для чтения с консоли
         Scanner in = new Scanner(System.in);
 
@@ -83,10 +75,6 @@ public final class Reversi extends BoardGame implements EnvTheme {
 
         // Два игрока
         Player player, opponent;
-        Random rnd = new Random();
-
-        // Количество возможных ходов
-        int valid_moves_count;
 
         // Счётчики за сессию
         bestEasyScore = 0;
@@ -94,83 +82,20 @@ public final class Reversi extends BoardGame implements EnvTheme {
 
         // Перезапуск всей игры
         do {
-            // Очистка консоли
-            System.out.print("\033[H\033[J");
-
-            System.out.println(ANSI_PURPLE + "\n\tREVERSI" + ANSI_RESET);
-
             // Игроки
             player = new Player();
             opponent = new Player();
 
-            System.out.print("" +
-                    "\nВыберите Фишку для Первого Игрока (В первой игре вначале ходят жёлтые):" +
-                    "\n\tЖёлтый (" + getColorChar(SYMBOL_1) + ")  -  " +
-                    ANSI_BLUE + "Любое значение" + ANSI_RESET +
-                    "\n\tЗелёный(" + getColorChar(SYMBOL_2) + ")  -  " +
-                    ANSI_BLUE + "2" + ANSI_RESET +
-                    "\n\tСлучайно      -  " +
-                    ANSI_BLUE + "3" + ANSI_RESET +
-                    "\nВведите число:\s"
-            );
-            answerColorStr = in.next();
-
-            if (Objects.equals(answerColorStr, "3")) {
-                answerColorStr = Integer.toString(rnd.nextInt(2));
-            }
-            if (Objects.equals(answerColorStr, "2")) {
-                answerColor = 0;
-                player.symbol = SYMBOL_2;
-                opponent.symbol = SYMBOL_1;
-            } else {
-                answerColor = 1;
-                player.symbol = SYMBOL_1;
-                opponent.symbol = SYMBOL_2;
-            }
-
-            player.name = PLAYER_NAMES[rnd.nextInt(PLAYER_NAMES.length)];
-            opponent.name = COMPUTER_NAMES[rnd.nextInt(COMPUTER_NAMES.length)];
-            System.out.println("\n" +
-                    "\nНик Первого игрока: " + getColorString(player.name, player.symbol) +
-                    "\nНик Второго игрока: " + getColorString(opponent.name, opponent.symbol) +
-                    "\n\n" +
-                    getColorString(player.name, player.symbol) + " будет играть: " +
-                    getColorChar(player.symbol) + "\n" +
-                    getColorString(opponent.name, opponent.symbol) + " будет играть: " +
-                    getColorChar(opponent.symbol)
-            );
-            System.out.print("\n" +
-                    "\nВыберите вариант игры:" +
-                    "\n\tЛёгкий компьютер       -  " + ANSI_BLUE + "Любое значение" + ANSI_RESET +
-                    "\n\tПродвинутый компьютер  -  " + ANSI_BLUE + "2" + ANSI_RESET +
-                    "\n\tПротив второго игрока  -  " + ANSI_BLUE + "3" + ANSI_RESET +
-                    "\nВведите число:\s"
-            );
-
-            answerGameModeStr = in.next();
-
-            if (Objects.equals(answerGameModeStr, "2")) {
-                // Выбран Hard режим
-                answerGameMode = 2;
-            } else if (Objects.equals(answerGameModeStr, "3")) {
-                // Выбран Duo режим
-                answerGameMode = 3;
-            } else {
-                // Выбран Easy режим
-                answerGameMode = 1;
-            }
-
-            // Счётчики
-            gamesCount = 0;
-            movesCount = 0;
+            // Номер выбранного цвета (Для очерёдности хода)
+            int answerColor = prepareSessionOfGames(player, opponent, in);
 
             // Перезапуск режима игры для серии)
             do {
                 // Подготовка к игре
-                prepareReversi(player, opponent);
+                prepareSeriesOfGames(player, opponent);
 
                 // В четных играх начинает symbol1 = @, в нечетных играх начинает symbol2 = $
-                currentPlayer = answerColor + gamesCount % 2;
+                int currentPlayer = answerColor + gamesCount % 2;
                 movesCount = 4;
 
                 do {
@@ -180,6 +105,14 @@ public final class Reversi extends BoardGame implements EnvTheme {
                                     + ANSI_RESET, movesCount - 3,
                             getScore(board, player.symbol), getScore(board, opponent.symbol)
                     );
+                    // Количество возможных ходов
+                    int valid_moves_count;
+
+                    // Запись предыдущего хода
+                    for (int row = 0; row < SIZE; row++) {
+                        System.arraycopy(board[row], 0, boardPrev[row], 0, SIZE);
+                    }
+
                     if (currentPlayer++ % 2 == 0) {
                         // Ход игрока
                         valid_moves_count = validMoves(board, moves, player.symbol);
@@ -239,6 +172,11 @@ public final class Reversi extends BoardGame implements EnvTheme {
                 answer = in.next();
 
             } while (Objects.equals(answer.toLowerCase(), "y") || Objects.equals(answer.toLowerCase(), "yes"));
+
+            System.out.println("\nНаилучший результат в сессии таков:" +
+                    "\n\tПротив Лёгкого бота: " + ANSI_BLUE + bestEasyScore + ANSI_RESET +
+                    "\n\tПротив Продвинутого бота: " + ANSI_BLUE + bestHardScore + ANSI_RESET
+            );
 
             System.out.print("\nХочешь поиграть снова (выбрать другого соперника)? " +
                     ANSI_GREEN + "y" + ANSI_RESET + "/" + ANSI_RED + "n" + ANSI_RESET + "): "
@@ -603,12 +541,87 @@ public final class Reversi extends BoardGame implements EnvTheme {
 
 
     /**
-     * Завершить игру (посчитать и вывести счёт)
+     * Подготовить поле к серии игр
+     *
+     * @param player   Игрок 1
+     * @param opponent Игрок 2
+     * @param in Поток чтения
+     * @return Номер выбранного цвета (Для очерёдности хода)
+     */
+    private int prepareSessionOfGames(Player player, Player opponent, Scanner in) {
+        Random rnd = new Random();
+        int answerColor;
+
+        // Очистка консоли
+        System.out.print("\033[H\033[J");
+
+        System.out.println(ANSI_PURPLE + "\n\tREVERSI" + ANSI_RESET +
+                "\n\nВыберите Фишку для Первого Игрока (В первой игре вначале ходят жёлтые):" +
+                "\n\tЖёлтый (" + getColorChar(SYMBOL_1) + ")  -  " +
+                ANSI_BLUE + "Любое значение" + ANSI_RESET +
+                "\n\tЗелёный(" + getColorChar(SYMBOL_2) + ")  -  " +
+                ANSI_BLUE + "2" + ANSI_RESET +
+                "\n\tСлучайно      -  " +
+                ANSI_BLUE + "3" + ANSI_RESET +
+                "\nВведите число:\s"
+        );
+        String answerColorStr = in.next();
+
+        if (Objects.equals(answerColorStr, "3")) {
+            answerColorStr = Integer.toString(rnd.nextInt(2));
+        }
+        if (Objects.equals(answerColorStr, "2")) {
+            answerColor = 0;
+            player.symbol = SYMBOL_2;
+            opponent.symbol = SYMBOL_1;
+        } else {
+            answerColor = 1;
+            player.symbol = SYMBOL_1;
+            opponent.symbol = SYMBOL_2;
+        }
+
+        player.name = PLAYER_NAMES[rnd.nextInt(PLAYER_NAMES.length)];
+        opponent.name = COMPUTER_NAMES[rnd.nextInt(COMPUTER_NAMES.length)];
+        System.out.println("\n" +
+                "\nНик Первого игрока: " + getColorString(player.name, player.symbol) +
+                "\nНик Второго игрока: " + getColorString(opponent.name, opponent.symbol) +
+                "\n\n" +
+                getColorString(player.name, player.symbol) + " будет играть: " +
+                getColorChar(player.symbol) + "\n" +
+                getColorString(opponent.name, opponent.symbol) + " будет играть: " +
+                getColorChar(opponent.symbol) +
+                "\n\n\nВыберите вариант игры:" +
+                "\n\tЛёгкий компьютер       -  " + ANSI_BLUE + "Любое значение" + ANSI_RESET +
+                "\n\tПродвинутый компьютер  -  " + ANSI_BLUE + "2" + ANSI_RESET +
+                "\n\tПротив второго игрока  -  " + ANSI_BLUE + "3" + ANSI_RESET +
+                "\nВведите число:\s"
+        );
+
+        String answerGameModeStr = in.next();
+        if (Objects.equals(answerGameModeStr, "2")) {
+            // Выбран Hard режим
+            answerGameMode = 2;
+        } else if (Objects.equals(answerGameModeStr, "3")) {
+            // Выбран Duo режим
+            answerGameMode = 3;
+        } else {
+            // Выбран Easy режим
+            answerGameMode = 1;
+        }
+        // Счётчики
+        gamesCount = 0;
+        movesCount = 0;
+        return answerColor;
+    }
+
+
+    /**
+     * Подготовить поле к серии игр
      *
      * @param player   Игрок 1
      * @param opponent Игрок 2
      */
-    private void prepareReversi(Player player, Player opponent) {
+    private void prepareSeriesOfGames(Player player, Player opponent) {
         System.out.printf(ANSI_PURPLE + "\n\nREVERSI. Игра номер: %d\n" + ANSI_RESET, ++gamesCount);
 
         if (player.winCount + opponent.winCount > 0) {
@@ -636,6 +649,7 @@ public final class Reversi extends BoardGame implements EnvTheme {
      *
      * @param player   Игрок 1
      * @param opponent Игрок 2
+     * @param answerGameMode Режим игры
      */
     private void finishReversi(Player player, Player opponent, int answerGameMode) {
         System.out.print(ANSI_PURPLE + "\nФинальная доска:\n" + ANSI_RESET);

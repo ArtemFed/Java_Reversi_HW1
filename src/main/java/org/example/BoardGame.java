@@ -16,6 +16,9 @@ public abstract class BoardGame implements Game {
     protected final char[][] board = new char[SIZE][SIZE];
 
 
+    protected final char[][] boardPrev = new char[SIZE][SIZE];
+
+
     /**
      * Игровое поле с возмодными ходами (из 0 и 1)
      */
