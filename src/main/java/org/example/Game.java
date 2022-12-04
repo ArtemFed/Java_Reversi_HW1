@@ -12,10 +12,10 @@ public interface Game {
      * @param player Символ игрока
      * @return Счёт игрока
      */
-    int getScore(char[][] board, char player);
+    int getScore(Board board, char player);
 
     /**
      * Отобразить текущее игровое поле
      */
-    void display(char[][] board);
+    void display(Board board);
 }

@@ -1,10 +1,13 @@
 package org.example;
 
+import java.util.Stack;
+
 public abstract class BoardGame implements Game {
+
     /**
      * Размер Игрового поля
      */
-    protected static final int SIZE = 4;
+    public static final int SIZE = 8;
 
     protected int gamesCount = 0;
 
@@ -13,10 +16,13 @@ public abstract class BoardGame implements Game {
     /**
      * Игровое поле с фишками
      */
-    protected final char[][] board = new char[SIZE][SIZE];
+    protected Board board = new Board(SIZE, SIZE);
 
+    protected final Stack<Board> boards = new Stack<>();
 
-    protected final char[][] boardPrev = new char[SIZE][SIZE];
+    // protected final char[][] boardPrev = new char[SIZE][SIZE];
+
+    // protected final char[][] boardSecPrev = new char[SIZE][SIZE];
 
 
     /**
@@ -36,11 +42,11 @@ public abstract class BoardGame implements Game {
      * @param player Символ игрока
      * @return Счёт игрока
      */
-    public abstract int getScore(char[][] board, char player);
+    public abstract int getScore(Board board, char player);
 
     /**
      * Отобразить текущее игровое поле
      */
-    public abstract void display(char[][] board);
+    public abstract void display(final Board board);
 }
 

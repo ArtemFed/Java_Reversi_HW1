@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Scanner;
 
-public final class Reversi extends BoardGame implements EnvTheme {
+public final class Reversi extends BoardGame {
 
     /**
      * Список имён для случайной генерации имени пользователя
@@ -20,41 +20,44 @@ public final class Reversi extends BoardGame implements EnvTheme {
 
     private int bestHardScore;
 
+    // Номер выбранного цвета (Для очерёдности хода)
+    int answerColor;
+
     // Выбор мода игры (Easy = 1; Hard = 2; Duo = 3)
     private int answerGameMode;
 
     /**
-     * Расскрасить символ в зависимости от значения
+     * Раскрасить символ в зависимости от значения
      *
      * @param ch Символ
-     * @return Расскрашенный символ
+     * @return Раскрашенный символ
      */
-    private String getColorChar(char ch) {
-        if (ch == SYMBOL_1) {
-            return ANSI_YELLOW + " " + ch + " " + ANSI_RESET;
-        } else if (ch == SYMBOL_2) {
-            return ANSI_GREEN + " " + ch + " " + ANSI_RESET;
-        } else if (ch == SYMBOL_3) {
-            return ANSI_CYAN + " " + ch + " " + ANSI_RESET;
+    public static String getColorChar(char ch) {
+        if (ch == Board.SYMBOL_1) {
+            return EnvTheme.ANSI_YELLOW.getColor() + " " + ch + " " + EnvTheme.ANSI_RESET.getColor();
+        } else if (ch == Board.SYMBOL_2) {
+            return EnvTheme.ANSI_GREEN.getColor() + " " + ch + " " + EnvTheme.ANSI_RESET.getColor();
+        } else if (ch == Board.SYMBOL_3) {
+            return EnvTheme.ANSI_CYAN.getColor() + " " + ch + " " + EnvTheme.ANSI_RESET.getColor();
         }
         return " " + ch + " ";
     }
 
 
     /**
-     * Расскрасить строку в зависимости от значения полученного символа
+     * Раскрасить строку в зависимости от значения полученного символа
      *
      * @param line Строка
      * @param ch   Символ
-     * @return Расскрашенная строка
+     * @return Раскрашенная строка
      */
-    private String getColorString(String line, char ch) {
-        if (ch == SYMBOL_1) {
-            return ANSI_YELLOW + line + ANSI_RESET;
-        } else if (ch == SYMBOL_2) {
-            return ANSI_GREEN + line + ANSI_RESET;
-        } else if (ch == SYMBOL_3) {
-            return ANSI_CYAN + line + ANSI_RESET;
+    public static String getColorString(String line, char ch) {
+        if (ch == Board.SYMBOL_1) {
+            return EnvTheme.ANSI_YELLOW.getColor() + line + EnvTheme.ANSI_RESET.getColor();
+        } else if (ch == Board.SYMBOL_2) {
+            return EnvTheme.ANSI_GREEN.getColor() + line + EnvTheme.ANSI_RESET.getColor();
+        } else if (ch == Board.SYMBOL_3) {
+            return EnvTheme.ANSI_CYAN.getColor() + line + EnvTheme.ANSI_RESET.getColor();
         }
         return " " + ch + " ";
     }
@@ -71,7 +74,7 @@ public final class Reversi extends BoardGame implements EnvTheme {
         String answer;
 
         // Количество пропусков хода подряд (если == 2, то game over) для преждевременного завершения игры
-        int invalidMovesCount = 0;
+        int skipsCount = 0;
 
         // Два игрока
         Player player, opponent;
@@ -86,49 +89,59 @@ public final class Reversi extends BoardGame implements EnvTheme {
             player = new Player();
             opponent = new Player();
 
-            // Номер выбранного цвета (Для очерёдности хода)
-            int answerColor = prepareSessionOfGames(player, opponent, in);
+            answerColor = prepareSessionOfGames(player, opponent, in);
 
-            // Перезапуск режима игры для серии)
+            // Перезапуск режима игры для серии
             do {
                 // Подготовка к игре
                 prepareSeriesOfGames(player, opponent);
 
                 // В четных играх начинает symbol1 = @, в нечетных играх начинает symbol2 = $
-                int currentPlayer = answerColor + gamesCount % 2;
+                int currentPlayer = (1 + answerColor + gamesCount) % 2;
                 movesCount = 4;
 
+                // Просчитывание ходов
                 do {
-                    System.out.printf(ANSI_PURPLE + "\nИгровое поле. Ход: %d.\n" + "Текущий счёт: " +
+                    System.out.printf(EnvTheme.ANSI_PURPLE.getColor() +
+                                    "\nИгровое поле. Ход: %d.\n" + "Текущий счёт: " +
                                     getColorString(player.name, player.symbol) + " %d | %d " +
                                     getColorString(opponent.name, opponent.symbol) + "\n"
-                                    + ANSI_RESET, movesCount - 3,
+                                    + EnvTheme.ANSI_RESET.getColor(), movesCount - 3,
                             getScore(board, player.symbol), getScore(board, opponent.symbol)
                     );
                     // Количество возможных ходов
                     int valid_moves_count;
 
-                    // Запись предыдущего хода
-                    for (int row = 0; row < SIZE; row++) {
-                        System.arraycopy(board[row], 0, boardPrev[row], 0, SIZE);
-                    }
-
                     if (currentPlayer++ % 2 == 0) {
-                        // Ход игрока
-                        valid_moves_count = validMoves(board, moves, player.symbol);
-                        // Выводим валидные шаги
-                        if (valid_moves_count != 0) {
-                            displayWithTips();
-                            // Обнуляем счётчик не валидных ходов подряд
-                            invalidMovesCount = 0;
-                            playerMove(player, in);
-                        } else if (++invalidMovesCount < 2) {
-                            System.out.print("\n" +
-                                    getColorString(player.name, player.symbol) + " " + getColorChar(player.symbol) +
-                                    " не может сходить, поэтому пропускает."
-                            );
-                        } else {
-                            System.out.print("\n!  Никто из Игроков не может сходить, так что игра окончена.\n");
+                        try {
+                            // Ход игрока
+                            valid_moves_count = validMoves(board, moves, player.symbol);
+                            // Выводим валидные шаги
+                            if (valid_moves_count != 0) {
+                                displayWithTips();
+                                // Обнуляем счётчик не валидных ходов подряд
+                                skipsCount = 0;
+
+                                // Make BackUp
+                                Board temp = new Board(board.board, SIZE, SIZE);
+                                boards.push(temp);
+
+                                playerMove(player, in);
+                            } else if (++skipsCount < 2) {
+                                System.out.print("\n" +
+                                        getColorString(player.name, player.symbol) + " " +
+                                        getColorChar(player.symbol) + " не может сходить, поэтому пропускает."
+                                );
+                            } else {
+                                System.out.print(
+                                        "\n!  Никто из Игроков не может сходить, так что игра окончена.\n"
+                                );
+                            }
+                        } catch (StepBackException ex) {
+                            // Сделать шаг назад
+                            board = makeStepBack();
+                            ++currentPlayer;
+                            movesCount -= 2;
                         }
                     } else {
                         // Ход оппонента
@@ -141,19 +154,26 @@ public final class Reversi extends BoardGame implements EnvTheme {
                         // Ход второго игрока (Компьютера, другого пользователя или шизофреника)
                         if (valid_moves_count != 0) {
                             // Обнуляем счётчик не валидных ходов подряд
-                            invalidMovesCount = 0;
+                            skipsCount = 0;
                             switch (answerGameMode) {
                                 case 2 -> computerMove(opponent, true);
-                                case 3 -> playerMove(opponent, in);
+                                case 3 -> {
+                                    try {
+                                        playerMove(opponent, in);
+                                    } catch (StepBackException ignored) {
+                                        // Не возможно сюда попасть, так как ошибка только при answerGameMode != 3
+                                    }
+                                }
                                 default -> computerMove(opponent, false);
                             }
                             if (answerGameMode != 3) {
                                 movesCount++;
                             }
                         } else {
-                            if (++invalidMovesCount < 2) {
+                            if (++skipsCount < 2) {
                                 System.out.print("\n" +
-                                        getColorString(opponent.name, opponent.symbol) + " " + getColorChar(opponent.symbol)
+                                        getColorString(opponent.name, opponent.symbol) + " " +
+                                        getColorChar(opponent.symbol)
                                         + " не может сходить, поэтому пропускает\n"
                                 );
                             } else {
@@ -161,29 +181,33 @@ public final class Reversi extends BoardGame implements EnvTheme {
                             }
                         }
                     }
-                } while (movesCount < SIZE * SIZE && invalidMovesCount < 2);
+                } while (movesCount < SIZE * SIZE && skipsCount < 2);
 
                 // Game over
                 finishReversi(player, opponent, answerGameMode);
 
                 System.out.print("\n\nХочешь поиграть снова с тем же соперником? (очерёдность хода поменяется) (" +
-                        ANSI_GREEN + "y" + ANSI_RESET + "/" + ANSI_RED + "n" + ANSI_RESET + "): "
+                        EnvTheme.ANSI_GREEN.getColor() + "y" + EnvTheme.ANSI_RESET.getColor() + "/" +
+                        EnvTheme.ANSI_RED.getColor() + "n" + EnvTheme.ANSI_RESET.getColor() + "): "
                 );
                 answer = in.next();
 
             } while (Objects.equals(answer.toLowerCase(), "y") || Objects.equals(answer.toLowerCase(), "yes"));
 
             System.out.println("\nНаилучший результат в сессии таков:" +
-                    "\n\tПротив Лёгкого бота: " + ANSI_BLUE + bestEasyScore + ANSI_RESET +
-                    "\n\tПротив Продвинутого бота: " + ANSI_BLUE + bestHardScore + ANSI_RESET
+                    "\n\tПротив Лёгкого бота: " +
+                    EnvTheme.ANSI_BLUE.getColor() + bestEasyScore + EnvTheme.ANSI_RESET.getColor() +
+                    "\n\tПротив Продвинутого бота: " +
+                    EnvTheme.ANSI_BLUE.getColor() + bestHardScore + EnvTheme.ANSI_RESET.getColor()
             );
 
             System.out.print("\nХочешь поиграть снова (выбрать другого соперника)? " +
-                    ANSI_GREEN + "y" + ANSI_RESET + "/" + ANSI_RED + "n" + ANSI_RESET + "): "
+                    EnvTheme.ANSI_GREEN.getColor() + "y" + EnvTheme.ANSI_RESET.getColor() + "/" +
+                    EnvTheme.ANSI_RED.getColor() + "n" + EnvTheme.ANSI_RESET.getColor() + "): "
             );
             answer = in.next();
 
-        } while (Objects.equals(answer.toLowerCase(), "y") || Objects.equals(answer.toLowerCase(), "yes"));
+        } while (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes"));
 
         // Good luck have fun
         System.out.print("\nGLHF! Пока!\n");
@@ -191,6 +215,22 @@ public final class Reversi extends BoardGame implements EnvTheme {
         in.close();
     }
 
+    /**
+     * Сделать шаг назад
+     *
+     * @return Новая текущая доска
+     */
+    public Board makeStepBack() {
+        if (boards.size() > 1) {
+            var b = boards.get(boards.size() - 2);
+            boards.pop();
+            boards.pop();
+            return b;
+        }
+        var b = boards.peek();
+        boards.pop();
+        return b;
+    }
 
     /**
      * Отобразить подсказки для живого игрока
@@ -201,7 +241,7 @@ public final class Reversi extends BoardGame implements EnvTheme {
             for (int col = 0; col < SIZE; ++col) {
                 if (moves[row][col] == 1) {
                     stringBuilder.append("(").append(row + 1).append(" ").append(col + 1).append("); ");
-                    board[row][col] = SYMBOL_3;
+                    board.board[row][col] = Board.SYMBOL_3;
                 }
             }
         }
@@ -209,13 +249,31 @@ public final class Reversi extends BoardGame implements EnvTheme {
         System.out.println(stringBuilder);
         for (int row = 0; row < SIZE; ++row) {
             for (int col = 0; col < SIZE; ++col) {
-                if (board[row][col] == SYMBOL_3) {
-                    board[row][col] = ' ';
+                if (board.board[row][col] == Board.SYMBOL_3) {
+                    board.board[row][col] = ' ';
                 }
             }
         }
     }
 
+    /**
+     * Создать ошибку, если данные корректны
+     *
+     * @throws StepBackException Ошибка для возврата хода
+     */
+    private void throwStepBackExc() throws StepBackException {
+        if (answerGameMode == 3) {
+            System.out.println(EnvTheme.ANSI_RED.getColor() +
+                    "Вы не можете сделать шаг назад! Неверный режим игры!" + EnvTheme.ANSI_RESET.getColor()
+            );
+        } else if (movesCount - answerColor == 4) {
+            System.out.println(EnvTheme.ANSI_RED.getColor() +
+                    "Вы не можете сделать шаг назад! Только начало игры!" + EnvTheme.ANSI_RESET.getColor()
+            );
+        } else {
+            throw new StepBackException("Step back");
+        }
+    }
 
     /**
      * Обработать ход пользователя
@@ -223,26 +281,45 @@ public final class Reversi extends BoardGame implements EnvTheme {
      * @param player Символ игрока
      * @param in     Для чтения
      */
-    private void playerMove(Player player, Scanner in) {
+    private void playerMove(Player player, Scanner in) throws StepBackException {
         int x = 0, y = 0;
         boolean flag = true;
         // Считывание ходов игрока до тех пор, пока не будет введен один из действительных ходов
         while (flag) {
             System.out.print("Введите ход для " + getColorString(player.name, player.symbol) + "-" +
-                    getColorChar(player.symbol) + " (строка столбец): "
+                    getColorChar(player.symbol) + " <строка столбец> или <back>, чтобы вернутся на ход назад: "
             );
             String xStr = in.next();
+            // Если это режим игры с ботом, и это не начало игры, то игрок, введя "back" можно вернуться на ход назад
+            if (xStr.equalsIgnoreCase("back")) {
+                throwStepBackExc();
+                continue;
+            }
             String yStr = in.next();
+            // Если это режим игры с ботом, и это не начало игры, то игрок, введя "back" можно вернуться на ход назад
+            if (yStr.equalsIgnoreCase("back")) {
+                throwStepBackExc();
+                continue;
+            }
             if (isNotNumeric(xStr) || isNotNumeric(yStr)) {
-                System.out.print(ANSI_RED +
-                        "!!! Некорректные данные, попробуйте ещё раз. (Пример: 2 3)\n" + ANSI_RESET);
+                System.out.print(EnvTheme.ANSI_RED.getColor() +
+                        "Некорректные данные, попробуйте ещё раз. (Пример: 2 3)\n" +
+                        EnvTheme.ANSI_RESET.getColor()
+                );
                 continue;
             }
             x = Integer.parseInt(xStr) - 1;
             y = Integer.parseInt(yStr) - 1;
-            if (x < 0 || y < 0 || x >= SIZE || y >= SIZE || moves[x][y] != 1) {
-                System.out.print(ANSI_RED +
-                        "!!! Не валидный ход, попробуйте ещё раз. (Пример: 2 3)\n" + ANSI_RESET);
+            if (x < 0 || y < 0 || x >= SIZE || y >= SIZE) {
+                System.out.print(EnvTheme.ANSI_RED.getColor() +
+                        "Мимо! За пределами поля! Попробуйте ещё раз. (Пример: 2 3)\n" +
+                        EnvTheme.ANSI_RESET.getColor()
+                );
+            } else if (moves[x][y] != 1) {
+                System.out.print(EnvTheme.ANSI_RED.getColor() +
+                        "Не валидный ход! Попробуйте ещё раз. (Пример: 2 3)\n" +
+                        EnvTheme.ANSI_RESET.getColor()
+                );
             } else {
                 flag = false;
             }
@@ -281,7 +358,7 @@ public final class Reversi extends BoardGame implements EnvTheme {
 
         // Счёт
         double score = -100;
-        char[][] tempBoard = new char[SIZE][SIZE];
+        Board tempBoard;
         int[][] tempMoves = new int[SIZE][SIZE];
 
         // Символ игрока
@@ -296,9 +373,8 @@ public final class Reversi extends BoardGame implements EnvTheme {
                     }
 
                     // Делаем копию Игрового поля
-                    for (int i = 0; i < SIZE; i++) {
-                        System.arraycopy(board[i], 0, tempBoard[i], 0, SIZE);
-                    }
+                    tempBoard = new Board(board.board, SIZE, SIZE);
+
                     double new_score;
                     new_score = makeMove(tempBoard, row, col, player.symbol);
 
@@ -329,13 +405,13 @@ public final class Reversi extends BoardGame implements EnvTheme {
 
 
     /**
-     * Получить символ оппонетна
+     * Получить символ оппонента
      *
      * @param player Символ игрока
      * @return Символ оппонента
      */
     private static char getOpponentSymbol(char player) {
-        return (player == SYMBOL_1) ? SYMBOL_2 : SYMBOL_1;
+        return (player == Board.SYMBOL_1) ? Board.SYMBOL_2 : Board.SYMBOL_1;
     }
 
 
@@ -345,7 +421,7 @@ public final class Reversi extends BoardGame implements EnvTheme {
      * @param player Символ игрока на доске
      * @return Количество возможных ходов
      */
-    private int validMoves(char[][] board, int[][] moves, char player) {
+    private int validMoves(Board brd, int[][] moves, char player) {
         // Переменные-итераторы по строкам и столбцам
         int row, col;
 
@@ -369,22 +445,22 @@ public final class Reversi extends BoardGame implements EnvTheme {
         // оказалась замкнутой своими фишками.)
         for (row = 0; row < SIZE; row++) {
             for (col = 0; col < SIZE; col++) {
-                if (board[row][col] != ' ') { // Проверка на пустую клетку (Непустые не рассматриваем)
+                if (brd.board[row][col] != ' ') { // Проверка на пустую клетку (Непустые не рассматриваем)
                     continue;
                 }
 
                 // Проверяем все клетки вокруг пустой на наличие фишки противника
                 for (int rowDelta = -1; rowDelta <= 1; rowDelta++) {
                     for (int colDelta = -1; colDelta <= 1; colDelta++) {
-                        // Проверка корректноси индексов
+                        // Проверка корректности индексов
                         if (row + rowDelta < 0 || row + rowDelta >= SIZE ||
                                 col + colDelta < 0 || col + colDelta >= SIZE ||
                                 (rowDelta == 0 && colDelta == 0)) {
                             continue;
                         }
 
-                        // Проверяем каждую возможную клетку и Ищем квадрат игрока в диагональном направлении
-                        if (board[row + rowDelta][col + colDelta] == opponent) {
+                        // Проверяем каждую возможную клетку и ищем квадрат игрока в диагональном направлении
+                        if (brd.board[row + rowDelta][col + colDelta] == opponent) {
                             // Если мы нашли противника, то двигаемся в диагональном направлении через фишки противника
                             // в поисках фишки игрока
                             x = row + rowDelta;
@@ -394,9 +470,9 @@ public final class Reversi extends BoardGame implements EnvTheme {
                             y += colDelta;
 
                             // Не допускаем выход за край поля и Если мы наткнулись на пустую клетку - останавливаемся
-                            while (x >= 0 && x < SIZE && y >= 0 && y < SIZE && board[x][y] != ' ') {
+                            while (x >= 0 && x < SIZE && y >= 0 && y < SIZE && brd.board[x][y] != ' ') {
                                 // Если мы наткнулись на клетку игрока - +1 возможный ход
-                                if (board[x][y] == player) {
+                                if (brd.board[x][y] == player) {
                                     // Помечаем валидность хода
                                     moves[row][col] = 1;
                                     numOfMoves++;
@@ -424,12 +500,12 @@ public final class Reversi extends BoardGame implements EnvTheme {
      * @param player Символ игрока
      * @return Tuple Лучший счёт (счёт, строка, столбец)
      */
-    private TupleThree bestMove(char[][] board, int[][] moves, char player) {
+    private TupleThree bestMove(Board board, int[][] moves, char player) {
         // Для копирования Игрового поля
-        char[][] tempBoard = new char[SIZE][SIZE];
+        Board tempBoard;
 
         // Лучший счёт
-        double score = 0;
+        double score = -100;
         int rowBest = 0;
         int colBest = 0;
 
@@ -440,10 +516,8 @@ public final class Reversi extends BoardGame implements EnvTheme {
                     continue;
                 }
 
-                // Копируем поле
-                for (int i = 0; i < SIZE; i++) {
-                    System.arraycopy(board[i], 0, tempBoard[i], 0, SIZE);
-                }
+                // Копируем игровое поле
+                tempBoard = new Board(board.board, SIZE, SIZE);
 
                 double new_score = makeMove(tempBoard, row, col, player);
 
@@ -476,13 +550,13 @@ public final class Reversi extends BoardGame implements EnvTheme {
     /**
      * Сделать шаг
      *
-     * @param board  Игровое поле
+     * @param brd    Игровое поле
      * @param row    Индекс строки
      * @param col    Индекс столбца
      * @param player Символ игрока
      * @return Счёт с этого шага
      */
-    private double makeMove(char[][] board, int row, int col, char player) {
+    private double makeMove(Board brd, int row, int col, char player) {
         // Счёт с хода
         double score = 0;
 
@@ -490,12 +564,13 @@ public final class Reversi extends BoardGame implements EnvTheme {
         char opponent = getOpponentSymbol(player);
 
         // Ставим фишку игрока
-        board[row][col] = player;
+        brd.board[row][col] = player;
 
         if (row == 0 || row == (SIZE - 1) || col == 0 || col == (SIZE - 1)) {
             score = 0.4;
         }
-        if (row + col == 0 || row + col == 2 * (SIZE - 1) || (row == 0 && col == (SIZE - 1)) || (row == (SIZE - 1) && col == 0)) {
+        if (row + col == 0 || row + col == 2 * (SIZE - 1) ||
+                (row == 0 && col == (SIZE - 1)) || (row == (SIZE - 1) && col == 0)) {
             score = 0.8;
         }
         score += getScorePoint(row, col);
@@ -511,7 +586,7 @@ public final class Reversi extends BoardGame implements EnvTheme {
                 }
 
                 // Если мы найдем фишку противника, то ищем в том же направлении фишку игрока
-                if (board[row + rowDelta][col + colDelta] == opponent) {
+                if (brd.board[row + rowDelta][col + colDelta] == opponent) {
                     int x = row + rowDelta;
                     int y = col + colDelta;
 
@@ -519,16 +594,15 @@ public final class Reversi extends BoardGame implements EnvTheme {
                     y += colDelta;
 
                     // Не допускаем выход за край поля и Если мы наткнулись на пустую клетку - останавливаемся
-                    while (x >= 0 && x < SIZE && y >= 0 && y < SIZE && board[x][y] != ' ') {
+                    while (x >= 0 && x < SIZE && y >= 0 && y < SIZE && brd.board[x][y] != ' ') {
                         // Если мы наткнулись на клетку игрока - то заменяем все фишки противника на пути на свои
-                        if (board[x][y] == player) {
-                            while (board[x -= rowDelta][y -= colDelta] == opponent) {
+                        if (brd.board[x][y] == player) {
+                            while (brd.board[x -= rowDelta][y -= colDelta] == opponent) {
                                 score += getScorePoint(x, y);
-                                board[x][y] = player;
+                                brd.board[x][y] = player;
                             }
                             break;
                         }
-
                         // Двигаемся дальше по диагонали
                         x += rowDelta;
                         y += colDelta;
@@ -545,7 +619,7 @@ public final class Reversi extends BoardGame implements EnvTheme {
      *
      * @param player   Игрок 1
      * @param opponent Игрок 2
-     * @param in Поток чтения
+     * @param in       Поток чтения
      * @return Номер выбранного цвета (Для очерёдности хода)
      */
     private int prepareSessionOfGames(Player player, Player opponent, Scanner in) {
@@ -555,14 +629,14 @@ public final class Reversi extends BoardGame implements EnvTheme {
         // Очистка консоли
         System.out.print("\033[H\033[J");
 
-        System.out.println(ANSI_PURPLE + "\n\tREVERSI" + ANSI_RESET +
+        System.out.print(EnvTheme.ANSI_PURPLE.getColor() + "\n\tREVERSI" + EnvTheme.ANSI_RESET.getColor() +
                 "\n\nВыберите Фишку для Первого Игрока (В первой игре вначале ходят жёлтые):" +
-                "\n\tЖёлтый (" + getColorChar(SYMBOL_1) + ")  -  " +
-                ANSI_BLUE + "Любое значение" + ANSI_RESET +
-                "\n\tЗелёный(" + getColorChar(SYMBOL_2) + ")  -  " +
-                ANSI_BLUE + "2" + ANSI_RESET +
+                "\n\tЖёлтый (" + getColorChar(Board.SYMBOL_1) + ")  -  " +
+                EnvTheme.ANSI_BLUE.getColor() + "Любое значение" + EnvTheme.ANSI_RESET.getColor() +
+                "\n\tЗелёный(" + getColorChar(Board.SYMBOL_2) + ")  -  " +
+                EnvTheme.ANSI_BLUE.getColor() + "2" + EnvTheme.ANSI_RESET.getColor() +
                 "\n\tСлучайно      -  " +
-                ANSI_BLUE + "3" + ANSI_RESET +
+                EnvTheme.ANSI_BLUE.getColor() + "3" + EnvTheme.ANSI_RESET.getColor() +
                 "\nВведите число:\s"
         );
         String answerColorStr = in.next();
@@ -571,18 +645,18 @@ public final class Reversi extends BoardGame implements EnvTheme {
             answerColorStr = Integer.toString(rnd.nextInt(2));
         }
         if (Objects.equals(answerColorStr, "2")) {
-            answerColor = 0;
-            player.symbol = SYMBOL_2;
-            opponent.symbol = SYMBOL_1;
-        } else {
             answerColor = 1;
-            player.symbol = SYMBOL_1;
-            opponent.symbol = SYMBOL_2;
+            player.symbol = Board.SYMBOL_2;
+            opponent.symbol = Board.SYMBOL_1;
+        } else {
+            answerColor = 0;
+            player.symbol = Board.SYMBOL_1;
+            opponent.symbol = Board.SYMBOL_2;
         }
 
         player.name = PLAYER_NAMES[rnd.nextInt(PLAYER_NAMES.length)];
         opponent.name = COMPUTER_NAMES[rnd.nextInt(COMPUTER_NAMES.length)];
-        System.out.println("\n" +
+        System.out.print("\n" +
                 "\nНик Первого игрока: " + getColorString(player.name, player.symbol) +
                 "\nНик Второго игрока: " + getColorString(opponent.name, opponent.symbol) +
                 "\n\n" +
@@ -591,9 +665,12 @@ public final class Reversi extends BoardGame implements EnvTheme {
                 getColorString(opponent.name, opponent.symbol) + " будет играть: " +
                 getColorChar(opponent.symbol) +
                 "\n\n\nВыберите вариант игры:" +
-                "\n\tЛёгкий компьютер       -  " + ANSI_BLUE + "Любое значение" + ANSI_RESET +
-                "\n\tПродвинутый компьютер  -  " + ANSI_BLUE + "2" + ANSI_RESET +
-                "\n\tПротив второго игрока  -  " + ANSI_BLUE + "3" + ANSI_RESET +
+                "\n\tЛёгкий компьютер       -  " +
+                EnvTheme.ANSI_BLUE.getColor() + "Любое значение" + EnvTheme.ANSI_RESET.getColor() +
+                "\n\tПродвинутый компьютер  -  " +
+                EnvTheme.ANSI_BLUE.getColor() + "2" + EnvTheme.ANSI_RESET.getColor() +
+                "\n\tПротив второго игрока  -  " +
+                EnvTheme.ANSI_BLUE.getColor() + "3" + EnvTheme.ANSI_RESET.getColor() +
                 "\nВведите число:\s"
         );
 
@@ -622,37 +699,39 @@ public final class Reversi extends BoardGame implements EnvTheme {
      * @param opponent Игрок 2
      */
     private void prepareSeriesOfGames(Player player, Player opponent) {
-        System.out.printf(ANSI_PURPLE + "\n\nREVERSI. Игра номер: %d\n" + ANSI_RESET, ++gamesCount);
+        System.out.printf(EnvTheme.ANSI_PURPLE.getColor() +
+                "\n\nREVERSI. Игра номер: %d\n" + EnvTheme.ANSI_RESET.getColor(), ++gamesCount);
 
         if (player.winCount + opponent.winCount > 0) {
-            System.out.printf(ANSI_PURPLE + "\n\nСЧЁТ: " + getColorString(player.name, player.symbol) +
+            System.out.printf(EnvTheme.ANSI_PURPLE.getColor() +
+                    "\n\nСЧЁТ: " + getColorString(player.name, player.symbol) +
                     " %d | %d " + getColorString(opponent.name, opponent.symbol) + "\n"
-                    + ANSI_RESET, player.winCount, opponent.winCount
+                    + EnvTheme.ANSI_RESET.getColor(), player.winCount, opponent.winCount
             );
         }
 
         // Очищаем поле
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
-                board[row][col] = ' ';
+                board.board[row][col] = ' ';
             }
         }
 
         // Расставляем начальные фишки в центре
-        board[SIZE / 2 - 1][SIZE / 2 - 1] = board[SIZE / 2][SIZE / 2] = player.symbol;
-        board[SIZE / 2 - 1][SIZE / 2] = board[SIZE / 2][SIZE / 2 - 1] = opponent.symbol;
+        board.board[SIZE / 2 - 1][SIZE / 2 - 1] = board.board[SIZE / 2][SIZE / 2] = player.symbol;
+        board.board[SIZE / 2 - 1][SIZE / 2] = board.board[SIZE / 2][SIZE / 2 - 1] = opponent.symbol;
     }
 
 
     /**
      * Завершить игру (посчитать и вывести счёт за серию игр и за сессию)
      *
-     * @param player   Игрок 1
-     * @param opponent Игрок 2
+     * @param player         Игрок 1
+     * @param opponent       Игрок 2
      * @param answerGameMode Режим игры
      */
     private void finishReversi(Player player, Player opponent, int answerGameMode) {
-        System.out.print(ANSI_PURPLE + "\nФинальная доска:\n" + ANSI_RESET);
+        System.out.print(EnvTheme.ANSI_PURPLE.getColor() + "\nФинальная доска:\n" + EnvTheme.ANSI_RESET.getColor());
         display(board);
 
         int comp_score = 0;
@@ -660,8 +739,8 @@ public final class Reversi extends BoardGame implements EnvTheme {
 
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
-                comp_score += board[row][col] == opponent.symbol ? 1 : 0;
-                user_score += board[row][col] == player.symbol ? 1 : 0;
+                comp_score += board.board[row][col] == opponent.symbol ? 1 : 0;
+                user_score += board.board[row][col] == player.symbol ? 1 : 0;
             }
         }
 
@@ -705,20 +784,20 @@ public final class Reversi extends BoardGame implements EnvTheme {
 
 
     /**
-     * Поситать счёт (количество) для заданного символа на Игровом поле
+     * Посчитать счёт (количество) для заданного символа на Игровом поле
      *
-     * @param board  Игровое поле
+     * @param brd    Игровое поле
      * @param player Символ игрока на поле
      * @return Счёт игрока
      */
     @Override
-    public int getScore(char[][] board, char player) {
+    public int getScore(Board brd, char player) {
         // Суммарный счёт Игрока
         int score = 0;
 
         for (int row = 0; row < SIZE; row++)
             for (int col = 0; col < SIZE; col++) {
-                score += board[row][col] == player ? 1 : 0;
+                score += brd.board[row][col] == player ? 1 : 0;
             }
         return score;
     }
@@ -730,23 +809,8 @@ public final class Reversi extends BoardGame implements EnvTheme {
      * @param board Поле для вывода
      */
     @Override
-    public void display(char[][] board) {
-        StringBuilder stringBuilder = new StringBuilder("\n ");
-        // Вывод шапки таблицы
-        for (int col = 0; col < SIZE; col++) {
-            stringBuilder.append(String.format("   %d", col + 1));
-        }
-        stringBuilder.append("\n");
-        // Вывод всего поля (таблицы)
-        for (int row = 0; row < SIZE; row++) {
-            stringBuilder.append("  +").append("---+".repeat(SIZE)).append(String.format("\n%2d|", row + 1));
-            for (int col = 0; col < SIZE; col++) {
-                stringBuilder.append(String.format(getColorChar(board[row][col]) + "|"));
-            }
-            stringBuilder.append("\n");
-        }
-        // Вывод низа таблицы
-        stringBuilder.append("  +").append("---+".repeat(SIZE)).append("\n");
-        System.out.print(stringBuilder);
+    public void display(Board board) {
+        board.display();
     }
+
 }
