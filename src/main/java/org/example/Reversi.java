@@ -232,7 +232,7 @@ public final class Reversi extends BoardGame {
      *
      * @return Новая текущая доска
      */
-    public Board makeStepBack() {
+    private Board makeStepBack() {
         if (boards.size() > 1) {
             var b = boards.get(boards.size() - 2);
             boards.pop();
