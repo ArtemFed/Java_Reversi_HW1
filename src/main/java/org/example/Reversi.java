@@ -16,15 +16,26 @@ public final class Reversi extends BoardGame {
      */
     private static final String[] COMPUTER_NAMES = {"Компьютер", "Бип-Буп", "MyComputer", "Windows XP", "Windows 98",};
 
+    /**
+     * Лучший счёт в Лёгком режиме
+     */
     private int bestEasyScore;
 
+    /**
+     * Лучший счёт в Тяжёлом режиме
+     */
     private int bestHardScore;
 
-    // Номер выбранного цвета (Для очерёдности хода)
+    /**
+     * Номер выбранного цвета (Для очерёдности хода)
+     */
     int answerColor;
 
-    // Выбор мода игры (Easy = 1; Hard = 2; Duo = 3)
+    /**
+     * Выбор мода игры (Easy = 1; Hard = 2; Duo = 3)
+     */
     private int answerGameMode;
+
 
     /**
      * Раскрасить символ в зависимости от значения
@@ -32,7 +43,7 @@ public final class Reversi extends BoardGame {
      * @param ch Символ
      * @return Раскрашенный символ
      */
-    public static String getColorChar(char ch) {
+    public static String getColorChar(final char ch) {
         if (ch == Board.SYMBOL_1) {
             return EnvTheme.ANSI_YELLOW.getColor() + " " + ch + " " + EnvTheme.ANSI_RESET.getColor();
         } else if (ch == Board.SYMBOL_2) {
@@ -51,7 +62,7 @@ public final class Reversi extends BoardGame {
      * @param ch   Символ
      * @return Раскрашенная строка
      */
-    public static String getColorString(String line, char ch) {
+    public static String getColorString(final String line, final char ch) {
         if (ch == Board.SYMBOL_1) {
             return EnvTheme.ANSI_YELLOW.getColor() + line + EnvTheme.ANSI_RESET.getColor();
         } else if (ch == Board.SYMBOL_2) {
@@ -215,6 +226,7 @@ public final class Reversi extends BoardGame {
         in.close();
     }
 
+
     /**
      * Сделать шаг назад
      *
@@ -231,6 +243,7 @@ public final class Reversi extends BoardGame {
         boards.pop();
         return b;
     }
+
 
     /**
      * Отобразить подсказки для живого игрока
@@ -256,6 +269,7 @@ public final class Reversi extends BoardGame {
         }
     }
 
+
     /**
      * Создать ошибку, если данные корректны
      *
@@ -275,13 +289,15 @@ public final class Reversi extends BoardGame {
         }
     }
 
+
     /**
      * Обработать ход пользователя
      *
      * @param player Символ игрока
      * @param in     Для чтения
+     * @throws StepBackException Ошибка для возврата хода
      */
-    private void playerMove(Player player, Scanner in) throws StepBackException {
+    private void playerMove(final Player player, final Scanner in) throws StepBackException {
         int x = 0, y = 0;
         boolean flag = true;
         // Считывание ходов игрока до тех пор, пока не будет введен один из действительных ходов
@@ -335,7 +351,7 @@ public final class Reversi extends BoardGame {
      * @param str Строка
      * @return Это НЕ число?
      */
-    public static boolean isNotNumeric(String str) {
+    public static boolean isNotNumeric(final String str) {
         try {
             Integer.parseInt(str);
             return false;
@@ -348,10 +364,10 @@ public final class Reversi extends BoardGame {
     /**
      * Найти и выполнить лучший ход для компьютера, опираясь на возможные ходы соперника
      *
-     * @param isSmart Умный ход, опираясь на действия игрока или обычный, лучший в данный момент
      * @param player  Символ компьютера
+     * @param isSmart Умный ход, опираясь на действия игрока или обычный, лучший в данный момент
      */
-    private void computerMove(Player player, boolean isSmart) {
+    private void computerMove(final Player player, final boolean isSmart) {
         // Индексы лучшего хода
         int bestRow = -1;
         int bestCol = -1;
@@ -410,7 +426,7 @@ public final class Reversi extends BoardGame {
      * @param player Символ игрока
      * @return Символ оппонента
      */
-    private static char getOpponentSymbol(char player) {
+    private static char getOpponentSymbol(final char player) {
         return (player == Board.SYMBOL_1) ? Board.SYMBOL_2 : Board.SYMBOL_1;
     }
 
@@ -418,10 +434,12 @@ public final class Reversi extends BoardGame {
     /**
      * Считает количество валидных/возможных ходов + составляет "карту" этих шагов из 0 и 1
      *
+     * @param brd    Игровая доска
+     * @param moves  Матрица возможных шагов
      * @param player Символ игрока на доске
      * @return Количество возможных ходов
      */
-    private int validMoves(Board brd, int[][] moves, char player) {
+    private int validMoves(final Board brd, final int[][] moves, final char player) {
         // Переменные-итераторы по строкам и столбцам
         int row, col;
 
@@ -496,11 +514,11 @@ public final class Reversi extends BoardGame {
      * Посчитать лучший счёт для данного поля и вариантов хода
      *
      * @param board  Игровое поле
-     * @param moves  Поле валидных шагов
+     * @param moves  Матрица валидных шагов
      * @param player Символ игрока
      * @return Tuple Лучший счёт (счёт, строка, столбец)
      */
-    private TupleThree bestMove(Board board, int[][] moves, char player) {
+    private TupleThree bestMove(final Board board, final int[][] moves, final char player) {
         // Для копирования Игрового поля
         Board tempBoard;
 
@@ -539,7 +557,7 @@ public final class Reversi extends BoardGame {
      * @param col Колонка
      * @return Очков с клетки
      */
-    private int getScorePoint(int row, int col) {
+    private static int getScorePoint(final int row, final int col) {
         if (row == 0 || row == (SIZE - 1) || col == 0 || col == (SIZE - 1)) {
             return 2;
         }
@@ -556,7 +574,7 @@ public final class Reversi extends BoardGame {
      * @param player Символ игрока
      * @return Счёт с этого шага
      */
-    private double makeMove(Board brd, int row, int col, char player) {
+    private double makeMove(final Board brd, final int row, final int col, final char player) {
         // Счёт с хода
         double score = 0;
 
@@ -622,7 +640,7 @@ public final class Reversi extends BoardGame {
      * @param in       Поток чтения
      * @return Номер выбранного цвета (Для очерёдности хода)
      */
-    private int prepareSessionOfGames(Player player, Player opponent, Scanner in) {
+    private int prepareSessionOfGames(final Player player, final Player opponent, final Scanner in) {
         Random rnd = new Random();
         int answerColor;
 
@@ -698,7 +716,7 @@ public final class Reversi extends BoardGame {
      * @param player   Игрок 1
      * @param opponent Игрок 2
      */
-    private void prepareSeriesOfGames(Player player, Player opponent) {
+    private void prepareSeriesOfGames(final Player player, final Player opponent) {
         System.out.printf(EnvTheme.ANSI_PURPLE.getColor() +
                 "\n\nREVERSI. Игра номер: %d\n" + EnvTheme.ANSI_RESET.getColor(), ++gamesCount);
 
@@ -730,7 +748,7 @@ public final class Reversi extends BoardGame {
      * @param opponent       Игрок 2
      * @param answerGameMode Режим игры
      */
-    private void finishReversi(Player player, Player opponent, int answerGameMode) {
+    private void finishReversi(final Player player, final Player opponent, final int answerGameMode) {
         System.out.print(EnvTheme.ANSI_PURPLE.getColor() + "\nФинальная доска:\n" + EnvTheme.ANSI_RESET.getColor());
         display(board);
 
@@ -791,7 +809,7 @@ public final class Reversi extends BoardGame {
      * @return Счёт игрока
      */
     @Override
-    public int getScore(Board brd, char player) {
+    public int getScore(final Board brd, final char player) {
         // Суммарный счёт Игрока
         int score = 0;
 
@@ -809,7 +827,7 @@ public final class Reversi extends BoardGame {
      * @param board Поле для вывода
      */
     @Override
-    public void display(Board board) {
+    public void display(final Board board) {
         board.display();
     }
 

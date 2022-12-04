@@ -20,10 +20,6 @@ public abstract class BoardGame implements Game {
 
     protected final Stack<Board> boards = new Stack<>();
 
-    // protected final char[][] boardPrev = new char[SIZE][SIZE];
-
-    // protected final char[][] boardSecPrev = new char[SIZE][SIZE];
-
 
     /**
      * Игровое поле с возмодными ходами (из 0 и 1)

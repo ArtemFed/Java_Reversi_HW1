@@ -10,13 +10,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b4f9361-cf3d-49bf-bf3a-8f72e6f883ef" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/Board.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/StepBackException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/Java_Reversi_HW1_jar.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/BoardGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/BoardGame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/EnvTheme.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/EnvTheme.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Game.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Reversi.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Reversi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/StepBackException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/StepBackException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/TupleThree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/TupleThree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +62,8 @@
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "preferences.sourceCode"
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RunManager">
@@ -95,7 +97,8 @@
       <workItem from="1669391456375" duration="903000" />
       <workItem from="1669635721539" duration="801000" />
       <workItem from="1670070868519" duration="19506000" />
-      <workItem from="1670147811768" duration="28100000" />
+      <workItem from="1670147811768" duration="29768000" />
+      <workItem from="1670184417036" duration="370000" />
     </task>
     <servers />
   </component>

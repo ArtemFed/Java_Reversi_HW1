@@ -1,6 +1,8 @@
 package org.example;
 
-// Различные цвета для красивого вывода в консоль
+/**
+ * Различные цвета для красивого вывода в консоль
+ */
 public enum EnvTheme {
     // Очистить настройки цвета
     ANSI_RESET("\u001B[0m"),
@@ -25,6 +27,11 @@ public enum EnvTheme {
         this.color = envUrl;
     }
 
+    /**
+     * Получить код цвета для раскраски текста в консоли
+     *
+     * @return Код цвета
+     */
     public String getColor() {
         return color;
     }
